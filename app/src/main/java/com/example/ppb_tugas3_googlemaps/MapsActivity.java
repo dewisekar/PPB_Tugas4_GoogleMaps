@@ -3,6 +3,11 @@ package com.example.ppb_tugas3_googlemaps;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,7 +28,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Button go = (Button) findViewById(R.id.idGo);
+        go.setOnClickListener(op);
+
     }
+
+    View.OnClickListener op = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.idGo:sembunyikanKeyBoard(view);
+                        gotoLokasi();break;
+            }
+        }
+    };
+
+
+    private void sembunyikanKeyBoard(View v){
+        InputMethodManager a = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        a.hideSoftInputFromWindow(v.getWindowToken(),0);
+    }
+
+    private void gotoPeta(Double lat, Double lng, float z){
+        LatLng Lokasibaru = new LatLng(lat,lng);
+        mMap.addMarker(new MarkerOptions().
+            position(Lokasibaru).
+            title("Marker in  " +lat +":" +lng));
+        mMap.moveCamera(CameraUpdateFactory.
+            newLatLngZoom(Lokasibaru,z));
+    }
+
+    private void gotoLokasi(){
+        EditText lat = (EditText) findViewById(R.id.input_lat);
+        EditText lng = (EditText) findViewById(R.id.input_long);
+        EditText zoom = (EditText) findViewById(R.id.input_zoom);
+
+        Double dbllat = Double.parseDouble(lat.getText().toString());
+        Double dbllng = Double.parseDouble(lng.getText().toString());
+        Float dblzoom = Float.parseFloat(zoom.getText().toString());
+
+        Toast.makeText(this,"Move to Lat:" +dbllat + " Long:" +dbllng,Toast.LENGTH_LONG).show();
+        gotoPeta(dbllat,dbllng,dblzoom);
+    }
+
 
 
     /**
@@ -42,6 +90,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add a marker in Sydney and move the camera
         LatLng ITS = new LatLng(-7.28, 112.79);
         mMap.addMarker(new MarkerOptions().position(ITS).title("Marker in ITS"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ITS, 8));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ITS, 1));
     }
 }
