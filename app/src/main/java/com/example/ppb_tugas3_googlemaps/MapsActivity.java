@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +21,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -52,7 +57,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         Button go = (Button) findViewById(R.id.idGo);
+        Button cari = (Button) findViewById(R.id.idCari);
         go.setOnClickListener(op);
+        cari.setOnClickListener(op);
 
     }
 
@@ -62,6 +69,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             switch (view.getId()){
                 case R.id.idGo:sembunyikanKeyBoard(view);
                         gotoLokasi();break;
+                case R.id.idCari:sembunyikanKeyBoard(view);
+                        goCari();break;
             }
         }
     };
@@ -70,6 +79,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void sembunyikanKeyBoard(View v){
         InputMethodManager a = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         a.hideSoftInputFromWindow(v.getWindowToken(),0);
+    }
+
+    private void goCari(){
+
+        EditText zoom = (EditText) findViewById(R.id.input_zoom);
+
+        if(zoom.length()==0 ||  zoom.getText().toString().trim().equals(".")){
+            zoom.setError("Zoom tidak boleh kosong!");
+        }
+        else{
+            Float dblzoom = Float.parseFloat(zoom.getText().toString());
+            if(dblzoom > 19){
+                zoom.setError("Masukkan zoom antara 0-19!");
+            }
+            else{
+                EditText tempat = (EditText) findViewById(R.id.input_cari);
+                Geocoder g = new Geocoder(getBaseContext());
+                List<Address> daftar = null;
+                try {
+                    daftar = g.getFromLocationName(tempat.getText().toString(), 1);
+                    Address alamat = daftar.get(0);
+
+                    String nemuAlamat = alamat.getAddressLine(0);
+                    Double lintang = alamat.getLatitude();
+                    Double bujur = alamat.getLongitude();
+
+                    Toast.makeText(getBaseContext(), "Ketemu" + nemuAlamat, Toast.LENGTH_LONG).show();
+
+                    Toast.makeText(this,"Move to "+ nemuAlamat +" Lat:" +
+                            lintang + " Long:" +bujur,Toast.LENGTH_LONG).show();
+                    gotoPeta(lintang,bujur,dblzoom);
+
+                    EditText lat = (EditText) findViewById(R.id.input_lat);
+                    EditText lng = (EditText) findViewById(R.id.input_long);
+                    lat.setText(lintang.toString());
+                    lng.setText(bujur.toString());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void gotoPeta(Double lat, Double lng, float z){
@@ -82,6 +133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void gotoLokasi(){
+
         EditText lat = (EditText) findViewById(R.id.input_lat);
         EditText lng = (EditText) findViewById(R.id.input_long);
         EditText zoom = (EditText) findViewById(R.id.input_zoom);
