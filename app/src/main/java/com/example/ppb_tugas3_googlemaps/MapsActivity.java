@@ -1,8 +1,12 @@
 package com.example.ppb_tugas3_googlemaps;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -16,9 +20,27 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.normal : mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL); break;
+            case R.id.terrain: mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);break;
+            case R.id.satellite: mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);break;
+            case R.id.hibryd: mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);break;
+            case R.id.none:mMap.setMapType(GoogleMap.MAP_TYPE_NONE);break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +86,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         EditText lng = (EditText) findViewById(R.id.input_long);
         EditText zoom = (EditText) findViewById(R.id.input_zoom);
 
-        Double dbllat = Double.parseDouble(lat.getText().toString());
-        Double dbllng = Double.parseDouble(lng.getText().toString());
-        Float dblzoom = Float.parseFloat(zoom.getText().toString());
 
-        Toast.makeText(this,"Move to Lat:" +dbllat + " Long:" +dbllng,Toast.LENGTH_LONG).show();
-        gotoPeta(dbllat,dbllng,dblzoom);
+
+        if(lng.length()==0 ||  lng.getText().toString().trim().equals(".")){
+            lng.setError("Longitude tidak boleh kosong!");
+        }
+        else if(lat.length()==0 ||  lat.getText().toString().trim().equals(".")){
+            lat.setError("Latitude tidak boleh kosong!");
+        }
+        else if(zoom.length()==0 ||  zoom.getText().toString().trim().equals(".")){
+            zoom.setError("Zoom tidak boleh kosong!");
+        }
+        else{
+            Double dbllat = Double.parseDouble(lat.getText().toString());
+            Double dbllng = Double.parseDouble(lng.getText().toString());
+            Float dblzoom = Float.parseFloat(zoom.getText().toString());
+            if(dblzoom > 19){
+                zoom.setError("Masukkan zoom antara 0-19!");
+            }
+            else{
+
+                Toast.makeText(this,"Move to Lat:" +dbllat + " Long:" +dbllng,Toast.LENGTH_LONG).show();
+                gotoPeta(dbllat,dbllng,dblzoom);
+            }
+        }
+
+
     }
 
 
